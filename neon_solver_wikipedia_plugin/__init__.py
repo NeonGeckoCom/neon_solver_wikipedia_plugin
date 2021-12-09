@@ -24,7 +24,7 @@
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import simplematch
 import wikipedia_for_humans
-from neon_utterance_RAKE_plugin import RAKETagger
+from neon_utterance_RAKE_plugin import RAKEExtractor
 
 from neon_solvers import AbstractSolver
 
@@ -32,7 +32,7 @@ from neon_solvers import AbstractSolver
 class WikipediaSolver(AbstractSolver):
     def __init__(self):
         super(WikipediaSolver, self).__init__(name="Wikipedia")
-        self.rake = RAKETagger()
+        self.rake = RAKEExtractor()
         self.cache.clear()
 
     def extract_keyword(self, query, lang="en"):
@@ -69,6 +69,7 @@ class WikipediaSolver(AbstractSolver):
     def get_data(self, query, context):
         lang = context.get("lang") or self.default_lang
         lang = lang.split("-")[0]
+        page_data = wikipedia_for_humans.page_data(query, lang=lang)
         data = {
             "short_answer": wikipedia_for_humans.tldr(query, lang=lang),
             "summary": wikipedia_for_humans.summary(query, lang=lang)
@@ -85,6 +86,8 @@ class WikipediaSolver(AbstractSolver):
                     "short_answer": wikipedia_for_humans.tldr(query, lang=lang),
                     "summary": wikipedia_for_humans.summary(query, lang=lang)
                 }
+        if page_data.get("images"):
+            data["images"] = page_data["images"]
         return data
 
     def get_spoken_answer(self, query, context):
@@ -99,3 +102,11 @@ class WikipediaSolver(AbstractSolver):
         if intro not in summay:
             return intro + "\n" + summay
         return summay
+
+    def get_image(self, query, context=None):
+        data = self.get_data(query, context or {})
+        try:
+            return data["images"][0]
+        except:
+            return None
+
