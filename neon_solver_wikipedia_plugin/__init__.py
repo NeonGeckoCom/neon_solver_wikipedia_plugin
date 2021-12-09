@@ -86,16 +86,11 @@ class WikipediaSolver(AbstractSolver):
                     "short_answer": wikipedia_for_humans.tldr(query, lang=lang),
                     "summary": wikipedia_for_humans.summary(query, lang=lang)
                 }
-        if page_data.get("images"):
-            data["images"] = page_data["images"]
-        return data
+        page_data.update(data)
+        return page_data
 
     def get_spoken_answer(self, query, context):
-        lang = context.get("lang") or self.default_lang
-        lang = lang.split("-")[0]
-        # extract the best keyword with some regexes or fallback to RAKE
-        query = self.extract_keyword(query, lang)
-        data = self.search(query, context)
+        data = self._get(query, context)
         # summary
         intro = data.get("short_answer", "")
         summay = data.get("summary", "")
@@ -104,9 +99,16 @@ class WikipediaSolver(AbstractSolver):
         return summay
 
     def get_image(self, query, context=None):
-        data = self.get_data(query, context or {})
+        data = self._get(query, context)
         try:
             return data["images"][0]
         except:
             return None
 
+    def _get(self, query, context=None):
+        context = context or {}
+        lang = context.get("lang") or self.default_lang
+        lang = lang.split("-")[0]
+        # extract the best keyword with some regexes or fallback to RAKE
+        query = self.extract_keyword(query, lang)
+        return self.search(query, context)
