@@ -90,7 +90,7 @@ class WikipediaSolver(AbstractSolver):
         return page_data
 
     def get_spoken_answer(self, query, context):
-        data = self._get(query, context)
+        data = self.extract_and_search(query, context)
         # summary
         intro = data.get("short_answer", "")
         summay = data.get("summary", "")
@@ -99,13 +99,13 @@ class WikipediaSolver(AbstractSolver):
         return summay
 
     def get_image(self, query, context=None):
-        data = self._get(query, context)
+        data = self.extract_and_search(query, context)
         try:
             return data["images"][0]
         except:
             return None
 
-    def _get(self, query, context=None):
+    def extract_and_search(self, query, context=None):
         context = context or {}
         lang = context.get("lang") or self.default_lang
         lang = lang.split("-")[0]
