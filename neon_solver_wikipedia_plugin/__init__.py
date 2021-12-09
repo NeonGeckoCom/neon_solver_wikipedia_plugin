@@ -65,6 +65,14 @@ class WikipediaSolver(AbstractSolver):
                 return match["query"], match["subquery"]
         return query, None
 
+    def extract_and_search(self, query, context=None):
+        context = context or {}
+        lang = context.get("lang") or self.default_lang
+        lang = lang.split("-")[0]
+        # extract the best keyword with some regexes or fallback to RAKE
+        query = self.extract_keyword(query, lang)
+        return self.search(query, context)
+
     # officially exported Solver methods
     def get_data(self, query, context):
         lang = context.get("lang") or self.default_lang
@@ -90,7 +98,7 @@ class WikipediaSolver(AbstractSolver):
         return page_data
 
     def get_spoken_answer(self, query, context):
-        data = self.extract_and_search(query, context)
+        data = self.get_data(query, context)
         # summary
         intro = data.get("short_answer", "")
         summay = data.get("summary", "")
@@ -105,10 +113,3 @@ class WikipediaSolver(AbstractSolver):
         except:
             return None
 
-    def extract_and_search(self, query, context=None):
-        context = context or {}
-        lang = context.get("lang") or self.default_lang
-        lang = lang.split("-")[0]
-        # extract the best keyword with some regexes or fallback to RAKE
-        query = self.extract_keyword(query, lang)
-        return self.search(query, context)
