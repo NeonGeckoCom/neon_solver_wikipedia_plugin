@@ -51,9 +51,9 @@ class WikipediaSolver(AbstractSolver):
         else:
             # let's try to extract the best keyword and use it as query
             _, context = self.rake.transform([query], {"lang": lang})
-            kwords = context["keywords"]
+            kwords = context.get("keywords")
             if not kwords:
-                return None
+                return query
             match = kwords[0][0]
 
         return match
