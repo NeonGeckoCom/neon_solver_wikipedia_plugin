@@ -63,6 +63,7 @@ class WikipediaSolver(AbstractSolver):
             match = simplematch.match("what is the {subquery} of {query}", query)
             if match:
                 return match["query"], match["subquery"]
+        query = self.extract_keyword(query, lang)
         return query, None
 
     def extract_and_search(self, query, context=None):
@@ -74,15 +75,21 @@ class WikipediaSolver(AbstractSolver):
         return self.search(query, context)
 
     # officially exported Solver methods
-    def get_data(self, query, context):
+    def get_data(self, query, context=None):
+        """
+       query assured to be in self.default_lang
+       return a dict response
+       """
+        context = context or {}
         lang = context.get("lang") or self.default_lang
         lang = lang.split("-")[0]
+
         page_data = wikipedia_for_humans.page_data(query, lang=lang)
         data = {
             "short_answer": wikipedia_for_humans.tldr(query, lang=lang),
             "summary": wikipedia_for_humans.summary(query, lang=lang)
         }
-        if not data:
+        if not page_data:
             query, subquery = self.get_secondary_search(query, lang)
             if subquery:
                 data = {
@@ -97,19 +104,47 @@ class WikipediaSolver(AbstractSolver):
         page_data.update(data)
         return page_data
 
-    def get_spoken_answer(self, query, context):
-        data = self.get_data(query, context)
-        # summary
-        intro = data.get("short_answer", "")
-        summay = data.get("summary", "")
-        if intro not in summay:
-            return intro + "\n" + summay
-        return summay
+    def get_spoken_answer(self, query, context=None):
+        data = self.extract_and_search(query, context)
+        return  data.get("summary", "")
 
     def get_image(self, query, context=None):
+        """
+        query assured to be in self.default_lang
+        return path/url to a single image to acompany spoken_answer
+        """
         data = self.extract_and_search(query, context)
         try:
             return data["images"][0]
         except:
             return None
 
+    def get_expanded_answer(self, query, context=None):
+        """
+        query assured to be in self.default_lang
+        return a list of ordered steps to expand the answer, eg, "tell me more"
+
+        {
+            "title": "optional",
+            "summary": "speak this",
+            "img": "optional/path/or/url
+        }
+
+        """
+        data = self.get_data(query, context)
+        img = self.get_image(query, context)
+        steps = [{
+                "title": query,
+                "summary": s,
+                "img": img
+            }
+            # skip first sentence since it was retrieve in spoken answer
+            for s in self.sentence_split(data["summary"], -1)[1:]]
+        for sec in data.get("sections", []):
+            steps += [{
+                "title": sec.get("title") or query,
+                "summary": s,
+                "img": img
+            }
+            for s in self.sentence_split(sec["text"], -1)]
+        return steps
