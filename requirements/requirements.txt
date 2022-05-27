@@ -1,3 +1,4 @@
 neon_solvers~=0.0
 requests
 wikipedia_for_humans
+simplematch
