@@ -64,6 +64,8 @@ class WikipediaSolver(AbstractSolver):
 
         # extract the best keyword with some regexes or fallback to RAKE
         query = self.extract_keyword(query, lang)
+        if not query:
+            return {}
         return self.search(query, context)
 
     # officially exported Solver methods
