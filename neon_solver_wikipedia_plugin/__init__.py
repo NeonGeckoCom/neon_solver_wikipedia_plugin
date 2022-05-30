@@ -96,6 +96,7 @@ class WikipediaSolver(AbstractSolver):
                     "summary": wikipedia_for_humans.summary(query, lang=lang)
                 }
         page_data.update(data)
+        page_data["title"] = page_data.get("title") or query
         return page_data
 
     def get_spoken_answer(self, query, context=None):
@@ -128,14 +129,14 @@ class WikipediaSolver(AbstractSolver):
         data = self.get_data(query, context)
         img = self.get_image(query, context)
         steps = [{
-                "title": query,
+                "title": data.get("title", query).title(),
                 "summary": s,
                 "img": img
             }
             for s in self.sentence_split(data["summary"], -1)]
         for sec in data.get("sections", []):
             steps += [{
-                "title": sec.get("title") or query,
+                "title": sec.get("title", query).title(),
                 "summary": s,
                 "img": img
             }
@@ -161,6 +162,10 @@ if __name__ == "__main__":
         print(sentence["title"])
         print(sentence["summary"])
         print(sentence.get("img"))
+
+        # who is Isaac Newton
+        # Sir Isaac Newton  (25 December 1642 – 20 March 1726/27) was an English mathematician, physicist, astronomer, alchemist, theologian, and author (described in his time as a "natural philosopher") widely recognised as one of the greatest mathematicians and physicists of all time and among the most influential scientists.
+        # https://upload.wikimedia.org/wikipedia/commons/3/3b/Portrait_of_Sir_Isaac_Newton%2C_1689.jpg
 
         # who is Isaac Newton
         # He was a key figure in the philosophical revolution known as the Enlightenment.
