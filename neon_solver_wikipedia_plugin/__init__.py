@@ -132,8 +132,7 @@ class WikipediaSolver(AbstractSolver):
                 "summary": s,
                 "img": img
             }
-            # skip first sentence since it was retrieve in spoken answer
-            for s in self.sentence_split(data["summary"], -1)[1:]]
+            for s in self.sentence_split(data["summary"], -1)]
         for sec in data.get("sections", []):
             steps += [{
                 "title": sec.get("title") or query,
