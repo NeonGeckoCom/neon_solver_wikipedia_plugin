@@ -28,8 +28,8 @@ from neon_solvers import AbstractSolver
 
 
 class WikipediaSolver(AbstractSolver):
-    def __init__(self):
-        super(WikipediaSolver, self).__init__(name="Wikipedia")
+    def __init__(self, config=None):
+        super(WikipediaSolver, self).__init__(name="Wikipedia", config=config)
         self.cache.clear()
 
     def extract_keyword(self, query, lang="en"):
