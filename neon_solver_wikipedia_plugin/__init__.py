@@ -28,9 +28,14 @@ from ovos_plugin_manager.templates.solvers import QuestionSolver
 
 
 class WikipediaSolver(QuestionSolver):
+    priority = 40
+    enable_tx = True
+
     def __init__(self, config=None):
-        super().__init__(name="Wikipedia", priority=40, config=config,
-                         enable_cache=False, enable_tx=True)
+        config = config or {}
+        config["lang"] = "en"  # only supports english
+        # TODO - full localization via .intent files
+        super().__init__(config)
         self.cache.clear()
 
     def extract_keyword(self, query, lang="en"):
