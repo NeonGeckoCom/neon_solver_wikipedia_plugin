@@ -1,4 +1,4 @@
-neon_solvers
+ovos-plugin-manager
 requests
 wikipedia_for_humans
 simplematch

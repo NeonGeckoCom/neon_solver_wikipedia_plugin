@@ -24,10 +24,10 @@
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import simplematch
 import wikipedia_for_humans
-from neon_solvers import AbstractSolver
+from ovos_plugin_manager.templates.solvers import QuestionSolver
 
 
-class WikipediaSolver(AbstractSolver):
+class WikipediaSolver(QuestionSolver):
     def __init__(self, config=None):
         super().__init__(name="Wikipedia", priority=40, config=config,
                          enable_cache=False, enable_tx=True)
@@ -102,7 +102,7 @@ class WikipediaSolver(AbstractSolver):
 
     def get_spoken_answer(self, query, context=None):
         data = self.extract_and_search(query, context)
-        return  data.get("summary", "")
+        return data.get("summary", "")
 
     def get_image(self, query, context=None):
         """
@@ -130,10 +130,10 @@ class WikipediaSolver(AbstractSolver):
         data = self.get_data(query, context)
         img = self.get_image(query, context)
         steps = [{
-                "title": data.get("title", query).title(),
-                "summary": s,
-                "img": img
-            }
+            "title": data.get("title", query).title(),
+            "summary": s,
+            "img": img
+        }
             for s in self.sentence_split(data["summary"], -1)]
         for sec in data.get("sections", []):
             steps += [{
@@ -141,7 +141,7 @@ class WikipediaSolver(AbstractSolver):
                 "summary": s,
                 "img": img
             }
-            for s in self.sentence_split(sec["text"], -1)]
+                for s in self.sentence_split(sec["text"], -1)]
         return steps
 
 
