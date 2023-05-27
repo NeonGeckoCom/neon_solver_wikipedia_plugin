@@ -150,6 +150,22 @@ class WikipediaSolver(QuestionSolver):
         return steps
 
 
+WIKI_PERSONA = {
+  "gender": "female",
+  "attitudes": {
+    "//": "this is WIP, a enum and value range will be defined later",
+    "normal": 100,
+    "funny": 0,
+    "sarcastic": 0,
+    "irritable": 0
+  },
+  "//": "these plugins are the brain of this persona",
+  "solvers": [
+    "neon_solver_wikipedia_plugin",
+    "ovos-solver-failure-plugin"
+  ]
+}
+
 if __name__ == "__main__":
     d = WikipediaSolver()
 
