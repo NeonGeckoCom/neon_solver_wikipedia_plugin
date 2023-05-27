@@ -24,12 +24,18 @@
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import simplematch
 import wikipedia_for_humans
-from neon_solvers import AbstractSolver
+from ovos_plugin_manager.templates.solvers import QuestionSolver
 
 
-class WikipediaSolver(AbstractSolver):
+class WikipediaSolver(QuestionSolver):
+    priority = 40
+    enable_tx = True
+
     def __init__(self, config=None):
-        super(WikipediaSolver, self).__init__(name="Wikipedia", config=config)
+        config = config or {}
+        config["lang"] = "en"  # only supports english
+        # TODO - full localization via .intent files
+        super().__init__(config)
         self.cache.clear()
 
     def extract_keyword(self, query, lang="en"):
@@ -101,7 +107,7 @@ class WikipediaSolver(AbstractSolver):
 
     def get_spoken_answer(self, query, context=None):
         data = self.extract_and_search(query, context)
-        return  data.get("summary", "")
+        return data.get("summary", "")
 
     def get_image(self, query, context=None):
         """
@@ -129,10 +135,10 @@ class WikipediaSolver(AbstractSolver):
         data = self.get_data(query, context)
         img = self.get_image(query, context)
         steps = [{
-                "title": data.get("title", query).title(),
-                "summary": s,
-                "img": img
-            }
+            "title": data.get("title", query).title(),
+            "summary": s,
+            "img": img
+        }
             for s in self.sentence_split(data["summary"], -1)]
         for sec in data.get("sections", []):
             steps += [{
@@ -140,9 +146,25 @@ class WikipediaSolver(AbstractSolver):
                 "summary": s,
                 "img": img
             }
-            for s in self.sentence_split(sec["text"], -1)]
+                for s in self.sentence_split(sec["text"], -1)]
         return steps
 
+
+WIKI_PERSONA = {
+  "gender": "female",
+  "attitudes": {
+    "//": "this is WIP, a enum and value range will be defined later",
+    "normal": 100,
+    "funny": 0,
+    "sarcastic": 0,
+    "irritable": 0
+  },
+  "//": "these plugins are the brain of this persona",
+  "solvers": [
+    "neon_solver_wikipedia_plugin",
+    "ovos-solver-failure-plugin"
+  ]
+}
 
 if __name__ == "__main__":
     d = WikipediaSolver()
