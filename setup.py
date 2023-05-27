@@ -30,7 +30,7 @@ with open("./version.py", "r", encoding="utf-8") as v:
 
 
 PLUGIN_ENTRY_POINT = 'neon_solver_wikipedia_plugin=neon_solver_wikipedia_plugin:WikipediaSolver'
-PERSONA_ENTRY_POINT = 'wikipedia=neon_solver_wikipedia_plugin:WIKI_PERSONA'
+PERSONA_ENTRY_POINT = 'neon-wikipedia=neon_solver_wikipedia_plugin:WIKI_PERSONA'
 
 setup(
     name='neon_solver_wikipedia_plugin',
